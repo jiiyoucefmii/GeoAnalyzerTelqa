@@ -1,0 +1,94 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-retail_map}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-retail_map}"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://app:change_me@db:5432/retail_map}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
+      GOOGLE_ROUTES_API_KEY: ${GOOGLE_ROUTES_API_KEY:-}
+      GOOGLE_GEOCODING_API_KEY: ${GOOGLE_GEOCODING_API_KEY:-}
+      GOOGLE_PLACES_LANGUAGE: ${GOOGLE_PLACES_LANGUAGE:-fr}
+      API_CORS_ORIGINS: ${API_CORS_ORIGINS:-http://localhost:3000,http://localhost:8080}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: ./backend
+    command: celery -A app.worker.celery_app worker --loglevel=INFO
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://app:change_me@db:5432/retail_map}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
+      GOOGLE_ROUTES_API_KEY: ${GOOGLE_ROUTES_API_KEY:-}
+      GOOGLE_GEOCODING_API_KEY: ${GOOGLE_GEOCODING_API_KEY:-}
+      GOOGLE_PLACES_LANGUAGE: ${GOOGLE_PLACES_LANGUAGE:-fr}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  scheduler:
+    build: ./backend
+    command: celery -A app.worker.celery_app beat --loglevel=INFO
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://app:change_me@db:5432/retail_map}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
+      GOOGLE_ROUTES_API_KEY: ${GOOGLE_ROUTES_API_KEY:-}
+      GOOGLE_GEOCODING_API_KEY: ${GOOGLE_GEOCODING_API_KEY:-}
+      GOOGLE_PLACES_LANGUAGE: ${GOOGLE_PLACES_LANGUAGE:-fr}
+      DEFAULT_WILAYA: ${DEFAULT_WILAYA:-Oran}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY:-}
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

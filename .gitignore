@@ -1,0 +1,5 @@
+.env
+__pycache__/
+*.pyc
+work/local_demo_data.json
+work/*.log

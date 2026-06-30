@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "build": "node build-config.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

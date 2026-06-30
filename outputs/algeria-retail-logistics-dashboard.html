@@ -1,0 +1,1934 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wilaya Retail And Delivery Coverage Dashboard</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #687381;
+      --line: #d7dde5;
+      --panel: #ffffff;
+      --page: #f3f6f8;
+      --store: #1c7c54;
+      --candidate: #c57b13;
+      --delivery: #2457c5;
+      --cluster: #9a3fb7;
+      --danger: #b3261e;
+      --good: #13795b;
+      --warn: #b35c00;
+      --shadow: 0 8px 28px rgba(24, 35, 49, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      min-height: 36px;
+    }
+
+    button:hover {
+      border-color: #9fb0c2;
+      background: #f9fbfd;
+    }
+
+    button.primary {
+      background: #17202a;
+      color: #fff;
+      border-color: #17202a;
+    }
+
+    button.ghost {
+      background: transparent;
+    }
+
+    button.danger {
+      color: #fff;
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 10px;
+      min-height: 36px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 68px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      padding: 16px 20px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(20px, 2.4vw, 30px);
+      line-height: 1.1;
+      font-weight: 760;
+    }
+
+    .title-block p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      max-width: 860px;
+      font-size: 14px;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .control-strip {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) minmax(140px, .7fr) minmax(120px, .5fr) minmax(120px, .5fr) auto auto;
+      gap: 10px;
+      padding: 12px 20px;
+      background: #eef3f6;
+      border-bottom: 1px solid var(--line);
+      align-items: end;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 14px;
+      padding: 14px;
+      min-height: 0;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-rows: auto minmax(420px, 1fr) auto;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 78px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .kpi strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .map-panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #e8edf1;
+      min-height: 470px;
+      box-shadow: var(--shadow);
+    }
+
+    #map {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 470px;
+      touch-action: manipulation;
+    }
+
+    .map-toolbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .map-badge, .legend {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid rgba(215, 221, 229, .9);
+      border-radius: 8px;
+      padding: 8px 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .map-badge strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .map-badge span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 580px;
+    }
+
+    .legend i {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: -1px;
+    }
+
+    .bottom-panels {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(330px, .8fr);
+      gap: 14px;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .panel-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .panel-body {
+      padding: 12px 14px;
+    }
+
+    .scroll-area {
+      overflow: auto;
+      max-height: 340px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 9px 8px;
+      border-bottom: 1px solid #edf0f3;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 700;
+      background: #fafbfc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr[data-selected="true"] {
+      background: #f1f7ff;
+    }
+
+    .side-panel {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .filters-grid, .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-grid .wide, .filters-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .toggle-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .toggle-list label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: #fbfcfd;
+    }
+
+    .toggle-list input {
+      width: auto;
+      min-height: 0;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid #d8dee6;
+      background: #f7f9fb;
+      color: #344255;
+      white-space: nowrap;
+    }
+
+    .status-pill.verified, .status-pill.manually_added {
+      border-color: #b4dbc9;
+      background: #edf8f3;
+      color: var(--good);
+    }
+
+    .status-pill.candidate, .status-pill.review {
+      border-color: #f1d3aa;
+      background: #fff6e9;
+      color: var(--warn);
+    }
+
+    .status-pill.rejected {
+      border-color: #efc0bd;
+      background: #fff1f0;
+      color: var(--danger);
+    }
+
+    .source-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .mini-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin: 8px 0 0;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 8px 8px 0;
+      border-bottom: 1px solid var(--line);
+      overflow: auto;
+    }
+
+    .tab {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom-color: transparent;
+      min-height: 34px;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      background: #17202a;
+      color: #fff;
+      border-color: #17202a;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    .detail-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfcfd;
+      min-height: 64px;
+    }
+
+    .detail-box strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .detail-box span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .empty-state {
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .hidden-file {
+      display: none;
+    }
+
+    @media (max-width: 1180px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 880px) {
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+      }
+
+      .control-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .kpis {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .bottom-panels, .side-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .map-toolbar {
+        position: static;
+        padding: 10px;
+        background: #e8edf1;
+        display: grid;
+      }
+
+      .map-panel {
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .control-strip, .filters-grid, .form-grid, .toggle-list, .kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .main-grid {
+        padding: 10px;
+      }
+
+      .topbar, .control-strip {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="title-block">
+        <h1>Wilaya Retail And Delivery Coverage</h1>
+        <p>Editable source-of-truth prototype for clothing stores, delivery companies, candidate verification, store clusters, and distance coverage.</p>
+      </div>
+      <div class="top-actions">
+        <button id="addStoreBtn" class="primary" title="Add a clothing store">+ Store</button>
+        <button id="addDeliveryBtn" title="Add a delivery company">+ Delivery</button>
+        <button id="exportCsvBtn" title="Export filtered places as CSV">CSV</button>
+        <button id="exportGeoJsonBtn" title="Export filtered places as GeoJSON">GeoJSON</button>
+        <button id="resetBtn" class="ghost" title="Reload sample dataset">Reset</button>
+      </div>
+    </header>
+
+    <section class="control-strip" aria-label="Analysis controls">
+      <label>
+        Wilaya
+        <select id="wilayaSelect"></select>
+      </label>
+      <label>
+        Commune
+        <select id="communeFilter"></select>
+      </label>
+      <label>
+        DBSCAN eps
+        <select id="epsSelect">
+          <option value="300">300 m</option>
+          <option value="500">500 m</option>
+          <option value="750" selected>750 m</option>
+          <option value="1000">1000 m</option>
+          <option value="1500">1500 m</option>
+        </select>
+      </label>
+      <label>
+        Min stores
+        <select id="minSamplesSelect">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+      <button id="recalcClustersBtn" class="primary" title="Recalculate clusters and distances">Recalculate</button>
+      <button id="importCsvBtn" title="Import CSV rows">Import</button>
+      <input id="csvInput" class="hidden-file" type="file" accept=".csv,text/csv">
+    </section>
+
+    <main class="main-grid">
+      <section class="workspace">
+        <div class="kpis" id="kpiRow"></div>
+
+        <section class="map-panel" aria-label="Wilaya map">
+          <svg id="map" viewBox="0 0 1000 650" role="img" aria-label="Store and delivery coverage map"></svg>
+          <div class="map-toolbar">
+            <div class="map-badge">
+              <strong id="mapTitle">Wilaya</strong>
+              <span id="mapSubtitle">0 places</span>
+            </div>
+            <div class="legend">
+              <span><i style="background:var(--store)"></i>Verified store</span>
+              <span><i style="background:var(--candidate)"></i>Candidate</span>
+              <span><i style="background:var(--delivery)"></i>Delivery</span>
+              <span><i style="background:var(--cluster)"></i>Cluster</span>
+              <span><i style="background:#ef4444"></i>Gap</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="bottom-panels">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Cluster To Delivery Distances</h2>
+              <button id="copyDistanceSummaryBtn" title="Copy distance summary">Copy</button>
+            </div>
+            <div class="panel-body scroll-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cluster</th>
+                    <th>Stores</th>
+                    <th>Radius</th>
+                    <th>Nearest delivery</th>
+                    <th>Distance</th>
+                    <th>Duration</th>
+                    <th>Coverage</th>
+                  </tr>
+                </thead>
+                <tbody id="distanceTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Verification Queue</h2>
+              <button id="findDuplicatesBtn" title="Find likely duplicates">Duplicates</button>
+            </div>
+            <div class="panel-body scroll-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Score</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="queueTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-panel">
+        <section class="panel">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="filters" role="tab">Filters</button>
+            <button class="tab" data-tab="editor" role="tab">Editor</button>
+            <button class="tab" data-tab="checks" role="tab">Checks</button>
+          </div>
+
+          <div id="filters" class="tab-pane active">
+            <div class="panel-body">
+              <div class="filters-grid">
+                <label>
+                  Category
+                  <select id="categoryFilter">
+                    <option value="all">All categories</option>
+                    <option value="clothing_store">Clothing stores</option>
+                    <option value="delivery_company">Delivery companies</option>
+                  </select>
+                </label>
+                <label>
+                  Status
+                  <select id="statusFilter">
+                    <option value="all">All statuses</option>
+                    <option value="candidate">Candidate</option>
+                    <option value="verified">Verified</option>
+                    <option value="manually_added">Manual</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </label>
+                <label>
+                  Subtype
+                  <select id="subtypeFilter"></select>
+                </label>
+                <label>
+                  Source
+                  <select id="sourceFilter">
+                    <option value="all">All sources</option>
+                    <option value="google_places">Google Places</option>
+                    <option value="osm">OSM</option>
+                    <option value="manual">Manual</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="website">Website</option>
+                  </select>
+                </label>
+                <label>
+                  Minimum verification
+                  <input id="minScoreFilter" type="range" min="0" max="100" step="5" value="0">
+                </label>
+                <label>
+                  Nearest delivery max
+                  <select id="distanceFilter">
+                    <option value="all">Any distance</option>
+                    <option value="1000">1 km</option>
+                    <option value="2500">2.5 km</option>
+                    <option value="5000">5 km</option>
+                    <option value="10000">10 km</option>
+                  </select>
+                </label>
+              </div>
+              <p class="mini-note">Minimum score: <strong id="minScoreLabel">0</strong></p>
+
+              <div class="panel-header" style="padding-left:0;padding-right:0;margin-top:12px;">
+                <h2>Map Layers</h2>
+              </div>
+              <div class="toggle-list">
+                <label><input type="checkbox" id="layerStores" checked> Stores</label>
+                <label><input type="checkbox" id="layerCandidates" checked> Candidates</label>
+                <label><input type="checkbox" id="layerDeliveries" checked> Delivery</label>
+                <label><input type="checkbox" id="layerClusters" checked> Clusters</label>
+                <label><input type="checkbox" id="layerHeatmap" checked> Heatmap</label>
+                <label><input type="checkbox" id="layerCoverage" checked> Coverage</label>
+              </div>
+            </div>
+          </div>
+
+          <div id="editor" class="tab-pane">
+            <div class="panel-body">
+              <label class="wide">
+                Selected record
+                <select id="placeSelect"></select>
+              </label>
+              <form id="placeForm" class="form-grid">
+                <input type="hidden" id="placeId">
+                <label class="wide">Name<input id="nameInput" required></label>
+                <label>Category
+                  <select id="categoryInput">
+                    <option value="clothing_store">Clothing store</option>
+                    <option value="delivery_company">Delivery company</option>
+                  </select>
+                </label>
+                <label>Subtype<input id="subtypeInput" placeholder="women, courier, last_mile"></label>
+                <label>Phone<input id="phoneInput"></label>
+                <label>Website<input id="websiteInput"></label>
+                <label class="wide">Address<textarea id="addressInput"></textarea></label>
+                <label>Latitude<input id="latInput" type="number" step="0.000001" required></label>
+                <label>Longitude<input id="lngInput" type="number" step="0.000001" required></label>
+                <label>Wilaya<input id="wilayaInput" required></label>
+                <label>Commune<input id="communeInput"></label>
+                <label>Status
+                  <select id="statusInput">
+                    <option value="candidate">Candidate</option>
+                    <option value="verified">Verified</option>
+                    <option value="manually_added">Manual</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </label>
+                <label>Score<input id="scoreInput" type="number" min="0" max="100" step="1"></label>
+                <label class="wide">Google Place ID<input id="googlePlaceIdInput"></label>
+                <label class="wide">Google Maps URL<input id="googleMapsUrlInput"></label>
+                <div class="button-row wide">
+                  <button type="submit" class="primary">Save</button>
+                  <button type="button" id="approveBtn">Approve</button>
+                  <button type="button" id="rejectBtn">Reject</button>
+                  <button type="button" id="deleteBtn" class="danger">Remove</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div id="checks" class="tab-pane">
+            <div class="panel-body">
+              <div id="selectedDetails" class="detail-box"></div>
+              <div class="source-line" id="sourceLine"></div>
+              <div class="panel-header" style="padding-left:0;padding-right:0;margin-top:12px;">
+                <h2>Add Verification Check</h2>
+              </div>
+              <form id="checkForm" class="form-grid">
+                <label>Check type
+                  <select id="checkTypeInput">
+                    <option value="google_business_status">Google status</option>
+                    <option value="osm_match">OSM match</option>
+                    <option value="website_active">Website active</option>
+                    <option value="social_recent">Social recent</option>
+                    <option value="phone_reachable">Phone reachable</option>
+                    <option value="manual_visit">Manual visit</option>
+                    <option value="duplicate_review">Duplicate review</option>
+                  </select>
+                </label>
+                <label>Result
+                  <select id="checkResultInput">
+                    <option value="pass">Pass</option>
+                    <option value="uncertain">Uncertain</option>
+                    <option value="fail">Fail</option>
+                  </select>
+                </label>
+                <label class="wide">Details<textarea id="checkDetailsInput"></textarea></label>
+                <div class="button-row wide">
+                  <button type="submit" class="primary">Add check</button>
+                  <button type="button" id="recomputeScoreBtn">Recompute score</button>
+                </div>
+              </form>
+              <div class="panel-header" style="padding-left:0;padding-right:0;margin-top:12px;">
+                <h2>Checks</h2>
+              </div>
+              <div id="checksList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Places</h2>
+            <span class="status-pill" id="placeCountBadge">0</span>
+          </div>
+          <div class="panel-body scroll-area">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="placesTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "dzRetailDeliveryDashboard.v1";
+    const today = new Date().toISOString().slice(0, 10);
+
+    const wilayaBounds = {
+      "Oran": { minLat: 35.58, maxLat: 35.83, minLng: -0.82, maxLng: -0.48, center: [35.697, -0.631] },
+      "Alger": { minLat: 36.64, maxLat: 36.83, minLng: 2.90, maxLng: 3.24, center: [36.753, 3.058] },
+      "Blida": { minLat: 36.36, maxLat: 36.58, minLng: 2.68, maxLng: 3.03, center: [36.472, 2.828] }
+    };
+
+    const samplePlaces = [
+      place("oran-store-1", "Mode El Bahia", "clothing_store", "women", "+213 41 22 10 01", "https://example.com/mode-el-bahia", "Rue Larbi Ben M'hidi, Oran", 35.6993, -0.6352, "Oran", "Oran", "verified", 86, "google-places-oran-1", "https://maps.google.com/?q=Mode+El+Bahia"),
+      place("oran-store-2", "Boutique Jasmin", "clothing_store", "women", "+213 41 22 10 02", "", "Centre-ville, Oran", 35.7011, -0.6331, "Oran", "Oran", "verified", 74, "google-places-oran-2", "https://maps.google.com/?q=Boutique+Jasmin+Oran"),
+      place("oran-store-3", "City Wear Oran", "clothing_store", "men", "+213 41 22 10 03", "", "Rue Khemisti, Oran", 35.6968, -0.6370, "Oran", "Oran", "candidate", 58, "google-places-oran-3", "https://maps.google.com/?q=City+Wear+Oran"),
+      place("oran-store-4", "Kids Corner Oran", "clothing_store", "kids", "", "", "Plateau Saint Michel, Oran", 35.6936, -0.6287, "Oran", "Oran", "verified", 68, "google-places-oran-4", "https://maps.google.com/?q=Kids+Corner+Oran"),
+      place("oran-store-5", "Saphir Collection", "clothing_store", "women", "+213 41 22 10 05", "", "Medina Jdida, Oran", 35.6909, -0.6386, "Oran", "Oran", "candidate", 44, "google-places-oran-5", "https://maps.google.com/?q=Saphir+Collection+Oran"),
+      place("oran-store-6", "Sport Mode Akid", "clothing_store", "sportswear", "+213 41 22 10 06", "https://example.com/sport-mode", "Akid Lotfi, Oran", 35.7302, -0.5564, "Oran", "Bir El Djir", "verified", 82, "google-places-oran-6", "https://maps.google.com/?q=Sport+Mode+Akid"),
+      place("oran-store-7", "Boutique Narjess", "clothing_store", "women", "", "", "Akid Lotfi, Oran", 35.7281, -0.5596, "Oran", "Bir El Djir", "candidate", 52, "google-places-oran-7", "https://maps.google.com/?q=Boutique+Narjess+Oran"),
+      place("oran-store-8", "Urban Shoes Oran", "clothing_store", "shoe_store", "+213 41 22 10 08", "", "Bir El Djir", 35.7270, -0.5535, "Oran", "Bir El Djir", "verified", 77, "google-places-oran-8", "https://maps.google.com/?q=Urban+Shoes+Oran"),
+      place("oran-store-9", "Es Senia Fashion", "clothing_store", "general", "+213 41 22 10 09", "", "Es Senia", 35.6512, -0.6243, "Oran", "Es Senia", "verified", 81, "google-places-oran-9", "https://maps.google.com/?q=Es+Senia+Fashion"),
+      place("oran-store-10", "Boutique Salam", "clothing_store", "men", "", "", "Es Senia", 35.6539, -0.6206, "Oran", "Es Senia", "candidate", 47, "google-places-oran-10", "https://maps.google.com/?q=Boutique+Salam+Es+Senia"),
+      place("oran-store-11", "Les Arcades Mode", "clothing_store", "women", "+213 41 22 10 11", "", "El Hamri, Oran", 35.7047, -0.6493, "Oran", "Oran", "verified", 70, "google-places-oran-11", "https://maps.google.com/?q=Les+Arcades+Mode"),
+      place("oran-store-12", "Maraval Style", "clothing_store", "general", "", "", "Maraval, Oran", 35.7138, -0.5942, "Oran", "Oran", "candidate", 40, "google-places-oran-12", "https://maps.google.com/?q=Maraval+Style"),
+      place("oran-delivery-1", "Yalidine Oran Hub", "delivery_company", "courier", "+213 41 55 10 01", "https://yalidine.com", "Oran logistics zone", 35.6910, -0.6159, "Oran", "Oran", "verified", 92, "google-delivery-oran-1", "https://maps.google.com/?q=Yalidine+Oran"),
+      place("oran-delivery-2", "ZR Express Oran", "delivery_company", "last_mile", "+213 41 55 10 02", "https://zr-express.com", "Bir El Djir", 35.7234, -0.5682, "Oran", "Bir El Djir", "verified", 88, "google-delivery-oran-2", "https://maps.google.com/?q=ZR+Express+Oran"),
+      place("oran-delivery-3", "Nord Ouest Livraison", "delivery_company", "shipping", "+213 41 55 10 03", "", "Es Senia", 35.6628, -0.6125, "Oran", "Es Senia", "candidate", 61, "google-delivery-oran-3", "https://maps.google.com/?q=livraison+Es+Senia"),
+      place("oran-delivery-4", "Colis Plus Oran", "delivery_company", "courier", "", "", "El Kerma", 35.6784, -0.5811, "Oran", "El Kerma", "candidate", 49, "google-delivery-oran-4", "https://maps.google.com/?q=Colis+Plus+Oran"),
+
+      place("alger-store-1", "Didouche Fashion", "clothing_store", "women", "+213 21 22 10 01", "", "Rue Didouche Mourad, Alger", 36.7617, 3.0489, "Alger", "Alger Centre", "verified", 84, "google-places-alger-1", "https://maps.google.com/?q=Didouche+Fashion"),
+      place("alger-store-2", "Hydra Style", "clothing_store", "men", "+213 21 22 10 02", "", "Hydra", 36.7471, 3.0417, "Alger", "Hydra", "verified", 79, "google-places-alger-2", "https://maps.google.com/?q=Hydra+Style"),
+      place("alger-store-3", "Bab Ezzouar Kids", "clothing_store", "kids", "", "", "Bab Ezzouar", 36.7179, 3.1849, "Alger", "Bab Ezzouar", "candidate", 55, "google-places-alger-3", "https://maps.google.com/?q=Bab+Ezzouar+Kids"),
+      place("alger-store-4", "Belouizdad Wear", "clothing_store", "general", "+213 21 22 10 04", "", "Belouizdad", 36.7468, 3.0768, "Alger", "Belouizdad", "verified", 73, "google-places-alger-4", "https://maps.google.com/?q=Belouizdad+Wear"),
+      place("alger-delivery-1", "Yalidine Alger", "delivery_company", "courier", "+213 21 55 10 01", "https://yalidine.com", "Alger", 36.7372, 3.0888, "Alger", "Hussein Dey", "verified", 94, "google-delivery-alger-1", "https://maps.google.com/?q=Yalidine+Alger"),
+      place("alger-delivery-2", "Express DZ Alger", "delivery_company", "last_mile", "+213 21 55 10 02", "", "Bab Ezzouar", 36.7218, 3.1821, "Alger", "Bab Ezzouar", "verified", 83, "google-delivery-alger-2", "https://maps.google.com/?q=Express+DZ+Alger"),
+
+      place("blida-store-1", "Blida Mode Centre", "clothing_store", "women", "+213 25 22 10 01", "", "Centre-ville Blida", 36.4725, 2.8287, "Blida", "Blida", "verified", 81, "google-places-blida-1", "https://maps.google.com/?q=Blida+Mode+Centre"),
+      place("blida-store-2", "Ouled Yaich Wear", "clothing_store", "general", "", "", "Ouled Yaich", 36.5012, 2.8614, "Blida", "Ouled Yaich", "candidate", 50, "google-places-blida-2", "https://maps.google.com/?q=Ouled+Yaich+Wear"),
+      place("blida-store-3", "Boufarik Style", "clothing_store", "men", "+213 25 22 10 03", "", "Boufarik", 36.5747, 2.9091, "Blida", "Boufarik", "verified", 72, "google-places-blida-3", "https://maps.google.com/?q=Boufarik+Style"),
+      place("blida-delivery-1", "Blida Livraison", "delivery_company", "courier", "+213 25 55 10 01", "", "Blida", 36.4786, 2.8355, "Blida", "Blida", "verified", 87, "google-delivery-blida-1", "https://maps.google.com/?q=Blida+Livraison")
+    ];
+
+    let state = loadState();
+    let selectedPlaceId = state.places[0]?.id || null;
+    let clusters = [];
+    let clusterDistances = [];
+
+    const els = {
+      wilayaSelect: document.getElementById("wilayaSelect"),
+      communeFilter: document.getElementById("communeFilter"),
+      epsSelect: document.getElementById("epsSelect"),
+      minSamplesSelect: document.getElementById("minSamplesSelect"),
+      categoryFilter: document.getElementById("categoryFilter"),
+      statusFilter: document.getElementById("statusFilter"),
+      subtypeFilter: document.getElementById("subtypeFilter"),
+      sourceFilter: document.getElementById("sourceFilter"),
+      minScoreFilter: document.getElementById("minScoreFilter"),
+      minScoreLabel: document.getElementById("minScoreLabel"),
+      distanceFilter: document.getElementById("distanceFilter"),
+      map: document.getElementById("map"),
+      mapTitle: document.getElementById("mapTitle"),
+      mapSubtitle: document.getElementById("mapSubtitle"),
+      kpiRow: document.getElementById("kpiRow"),
+      distanceTable: document.getElementById("distanceTable"),
+      queueTable: document.getElementById("queueTable"),
+      placesTable: document.getElementById("placesTable"),
+      placeCountBadge: document.getElementById("placeCountBadge"),
+      placeSelect: document.getElementById("placeSelect"),
+      placeForm: document.getElementById("placeForm"),
+      selectedDetails: document.getElementById("selectedDetails"),
+      sourceLine: document.getElementById("sourceLine"),
+      checksList: document.getElementById("checksList"),
+      csvInput: document.getElementById("csvInput"),
+      layerStores: document.getElementById("layerStores"),
+      layerCandidates: document.getElementById("layerCandidates"),
+      layerDeliveries: document.getElementById("layerDeliveries"),
+      layerClusters: document.getElementById("layerClusters"),
+      layerHeatmap: document.getElementById("layerHeatmap"),
+      layerCoverage: document.getElementById("layerCoverage")
+    };
+
+    const form = {
+      placeId: document.getElementById("placeId"),
+      name: document.getElementById("nameInput"),
+      category: document.getElementById("categoryInput"),
+      subtype: document.getElementById("subtypeInput"),
+      phone: document.getElementById("phoneInput"),
+      website: document.getElementById("websiteInput"),
+      address: document.getElementById("addressInput"),
+      lat: document.getElementById("latInput"),
+      lng: document.getElementById("lngInput"),
+      wilaya: document.getElementById("wilayaInput"),
+      commune: document.getElementById("communeInput"),
+      status: document.getElementById("statusInput"),
+      score: document.getElementById("scoreInput"),
+      googlePlaceId: document.getElementById("googlePlaceIdInput"),
+      googleMapsUrl: document.getElementById("googleMapsUrlInput")
+    };
+
+    initialize();
+
+    function place(id, name, category, subtype, phone, website, address_text, lat, lng, wilaya, commune, source_status, verification_score, google_place_id, google_maps_url) {
+      return {
+        id,
+        name,
+        category,
+        subtype,
+        phone,
+        website,
+        address_text,
+        lat,
+        lng,
+        wilaya,
+        commune,
+        source_status,
+        verification_score,
+        last_verified_at: source_status === "verified" ? "2026-06-18" : "",
+        google_place_id,
+        google_maps_url,
+        created_at: "2026-06-30T10:00:00.000Z",
+        updated_at: "2026-06-30T10:00:00.000Z"
+      };
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (error) {
+          console.warn("Could not parse saved state", error);
+        }
+      }
+
+      return seedState();
+    }
+
+    function seedState() {
+      const sources = [];
+      const checks = [];
+
+      samplePlaces.forEach((p) => {
+        sources.push({
+          id: uid("src"),
+          place_id: p.id,
+          source_type: p.google_place_id ? "google_places" : "manual",
+          source_url: p.google_maps_url || "",
+          source_confidence: p.source_status === "verified" ? 0.88 : 0.62,
+          raw_reference_id: p.google_place_id || "",
+          checked_at: "2026-06-18T12:00:00.000Z"
+        });
+
+        checks.push({
+          id: uid("chk"),
+          place_id: p.id,
+          check_type: "google_business_status",
+          result: p.source_status === "rejected" ? "fail" : "pass",
+          details: p.source_status === "verified" ? "Business status marked operational in source candidate." : "Candidate found; needs admin confirmation.",
+          checked_at: "2026-06-18T12:00:00.000Z"
+        });
+
+        if (p.phone) {
+          checks.push({
+            id: uid("chk"),
+            place_id: p.id,
+            check_type: "phone_reachable",
+            result: p.source_status === "candidate" ? "uncertain" : "pass",
+            details: "Phone number present in listing.",
+            checked_at: "2026-06-18T12:10:00.000Z"
+          });
+        }
+      });
+
+      const seeded = { places: samplePlaces, sources, checks };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+      return seeded;
+    }
+
+    function initialize() {
+      bindEvents();
+      populateStaticFilters();
+      recalculate();
+    }
+
+    function bindEvents() {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => activateTab(tab.dataset.tab));
+      });
+
+      [
+        els.wilayaSelect, els.communeFilter, els.epsSelect, els.minSamplesSelect, els.categoryFilter,
+        els.statusFilter, els.subtypeFilter, els.sourceFilter, els.minScoreFilter, els.distanceFilter,
+        els.layerStores, els.layerCandidates, els.layerDeliveries, els.layerClusters, els.layerHeatmap, els.layerCoverage
+      ].forEach((el) => el.addEventListener("input", () => {
+        els.minScoreLabel.textContent = els.minScoreFilter.value;
+        recalculate();
+      }));
+
+      document.getElementById("recalcClustersBtn").addEventListener("click", recalculate);
+      document.getElementById("addStoreBtn").addEventListener("click", () => createBlankPlace("clothing_store"));
+      document.getElementById("addDeliveryBtn").addEventListener("click", () => createBlankPlace("delivery_company"));
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        if (confirm("Reload the sample dataset and clear local edits?")) {
+          localStorage.removeItem(STORAGE_KEY);
+          state = seedState();
+          selectedPlaceId = state.places[0]?.id || null;
+          populateStaticFilters();
+          recalculate();
+        }
+      });
+      document.getElementById("exportCsvBtn").addEventListener("click", exportCsv);
+      document.getElementById("exportGeoJsonBtn").addEventListener("click", exportGeoJson);
+      document.getElementById("importCsvBtn").addEventListener("click", () => els.csvInput.click());
+      els.csvInput.addEventListener("change", importCsv);
+      els.placeSelect.addEventListener("change", (event) => selectPlace(event.target.value));
+      els.placeForm.addEventListener("submit", savePlace);
+      document.getElementById("approveBtn").addEventListener("click", () => setSelectedStatus("verified"));
+      document.getElementById("rejectBtn").addEventListener("click", () => setSelectedStatus("rejected"));
+      document.getElementById("deleteBtn").addEventListener("click", deleteSelectedPlace);
+      document.getElementById("checkForm").addEventListener("submit", addCheck);
+      document.getElementById("recomputeScoreBtn").addEventListener("click", () => {
+        const p = getSelectedPlace();
+        if (!p) return;
+        p.verification_score = computeVerificationScore(p);
+        p.updated_at = new Date().toISOString();
+        saveState();
+        recalculate();
+      });
+      document.getElementById("findDuplicatesBtn").addEventListener("click", flagDuplicates);
+      document.getElementById("copyDistanceSummaryBtn").addEventListener("click", copyDistanceSummary);
+    }
+
+    function populateStaticFilters() {
+      const wilayas = [...new Set(state.places.map((p) => p.wilaya))].sort();
+      const current = els.wilayaSelect.value || "Oran";
+      els.wilayaSelect.innerHTML = wilayas.map((w) => `<option value="${escapeHtml(w)}">${escapeHtml(w)}</option>`).join("");
+      els.wilayaSelect.value = wilayas.includes(current) ? current : wilayas[0] || "Oran";
+      populateDynamicFilters();
+    }
+
+    function populateDynamicFilters() {
+      const wilaya = els.wilayaSelect.value;
+      const places = state.places.filter((p) => p.wilaya === wilaya);
+      const communes = ["all", ...new Set(places.map((p) => p.commune).filter(Boolean).sort())];
+      const subtypes = ["all", ...new Set(places.map((p) => p.subtype).filter(Boolean).sort())];
+      const communeCurrent = els.communeFilter.value;
+      const subtypeCurrent = els.subtypeFilter.value;
+      els.communeFilter.innerHTML = communes.map((c) => `<option value="${escapeHtml(c)}">${c === "all" ? "All communes" : escapeHtml(c)}</option>`).join("");
+      els.subtypeFilter.innerHTML = subtypes.map((s) => `<option value="${escapeHtml(s)}">${s === "all" ? "All subtypes" : escapeHtml(s)}</option>`).join("");
+      els.communeFilter.value = communes.includes(communeCurrent) ? communeCurrent : "all";
+      els.subtypeFilter.value = subtypes.includes(subtypeCurrent) ? subtypeCurrent : "all";
+    }
+
+    function recalculate() {
+      populateDynamicFilters();
+      const analysisPlaces = state.places.filter((p) => p.wilaya === els.wilayaSelect.value && p.source_status !== "rejected");
+      const stores = analysisPlaces.filter((p) => p.category === "clothing_store" && ["verified", "manually_added"].includes(p.source_status));
+      clusters = runDbscan(stores, Number(els.epsSelect.value), Number(els.minSamplesSelect.value));
+      clusterDistances = calculateClusterDistances(clusters, analysisPlaces.filter((p) => p.category === "delivery_company" && p.source_status !== "rejected"));
+      renderAll();
+      saveState();
+    }
+
+    function renderAll() {
+      const filtered = getFilteredPlaces();
+      renderKpis(filtered);
+      renderMap(filtered);
+      renderDistanceTable();
+      renderQueue();
+      renderPlacesTable(filtered);
+      renderPlaceSelect();
+      renderEditor();
+      renderChecks();
+    }
+
+    function getFilteredPlaces() {
+      const wilaya = els.wilayaSelect.value;
+      const category = els.categoryFilter.value;
+      const status = els.statusFilter.value;
+      const subtype = els.subtypeFilter.value;
+      const commune = els.communeFilter.value;
+      const source = els.sourceFilter.value;
+      const minScore = Number(els.minScoreFilter.value);
+      const maxDistance = els.distanceFilter.value;
+      const deliveryDistanceByPlace = nearestDeliveryDistanceByPlace();
+
+      return state.places.filter((p) => {
+        if (p.wilaya !== wilaya) return false;
+        if (category !== "all" && p.category !== category) return false;
+        if (status !== "all" && p.source_status !== status) return false;
+        if (subtype !== "all" && p.subtype !== subtype) return false;
+        if (commune !== "all" && p.commune !== commune) return false;
+        if ((p.verification_score || 0) < minScore) return false;
+        if (source !== "all" && !state.sources.some((s) => s.place_id === p.id && s.source_type === source)) return false;
+        if (maxDistance !== "all" && p.category === "clothing_store") {
+          const d = deliveryDistanceByPlace.get(p.id);
+          if (!Number.isFinite(d) || d > Number(maxDistance)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderKpis(filtered) {
+      const wilayaPlaces = state.places.filter((p) => p.wilaya === els.wilayaSelect.value && p.source_status !== "rejected");
+      const stores = wilayaPlaces.filter((p) => p.category === "clothing_store");
+      const delivery = wilayaPlaces.filter((p) => p.category === "delivery_company");
+      const verified = wilayaPlaces.filter((p) => ["verified", "manually_added"].includes(p.source_status));
+      const avgNearest = average(clusterDistances.map((d) => d.nearest?.driving_distance_m).filter(Number.isFinite));
+
+      const items = [
+        ["Visible places", filtered.length],
+        ["Stores", stores.length],
+        ["Delivery companies", delivery.length],
+        ["Verified records", verified.length],
+        ["Avg nearest cluster", avgNearest ? formatDistance(avgNearest) : "n/a"]
+      ];
+
+      els.kpiRow.innerHTML = items.map(([label, value]) => `
+        <div class="kpi">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(String(value))}</strong>
+        </div>
+      `).join("");
+    }
+
+    function renderMap(filtered) {
+      const wilaya = els.wilayaSelect.value;
+      const bounds = wilayaBounds[wilaya] || boundsFromPlaces(filtered);
+      const project = makeProjector(bounds);
+      const parts = [];
+
+      parts.push(`<rect x="0" y="0" width="1000" height="650" fill="#e8edf1"></rect>`);
+      parts.push(`<path d="${boundaryPath(bounds, project)}" fill="#f9fbfd" stroke="#b6c2cf" stroke-width="2"></path>`);
+      parts.push(`<g opacity=".55">${gridLines()}</g>`);
+
+      if (els.layerHeatmap.checked) {
+        clusters.forEach((cluster) => {
+          const [x, y] = project(cluster.centroid_lat, cluster.centroid_lng);
+          const radius = Math.max(34, Math.min(110, cluster.radius_m / 8));
+          parts.push(`<circle cx="${x}" cy="${y}" r="${radius}" fill="#9a3fb7" opacity=".12"></circle>`);
+        });
+      }
+
+      if (els.layerCoverage.checked) {
+        clusterDistances.forEach((row) => {
+          if (!row.nearest) return;
+          const [x1, y1] = project(row.cluster.centroid_lat, row.cluster.centroid_lng);
+          const [x2, y2] = project(row.nearest.place.lat, row.nearest.place.lng);
+          const gap = row.nearest.driving_distance_m > 5000;
+          parts.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${gap ? "#ef4444" : "#2457c5"}" stroke-width="${gap ? 3 : 2}" opacity=".42" stroke-dasharray="${gap ? "7 7" : "0"}"></line>`);
+        });
+      }
+
+      if (els.layerClusters.checked) {
+        clusters.forEach((cluster, index) => {
+          const [x, y] = project(cluster.centroid_lat, cluster.centroid_lng);
+          parts.push(`<g class="cluster-marker" data-cluster="${index}">
+            <circle cx="${x}" cy="${y}" r="${Math.max(16, Math.min(32, 12 + cluster.store_count * 2))}" fill="#9a3fb7" opacity=".86"></circle>
+            <text x="${x}" y="${y + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">${cluster.store_count}</text>
+            <title>Cluster ${index + 1}: ${cluster.store_count} stores, radius ${formatDistance(cluster.radius_m)}</title>
+          </g>`);
+        });
+      }
+
+      filtered.forEach((p) => {
+        const isStore = p.category === "clothing_store";
+        const isDelivery = p.category === "delivery_company";
+        const isCandidate = p.source_status === "candidate";
+        if (isStore && !isCandidate && !els.layerStores.checked) return;
+        if (isStore && isCandidate && !els.layerCandidates.checked) return;
+        if (isDelivery && !els.layerDeliveries.checked) return;
+
+        const [x, y] = project(p.lat, p.lng);
+        const selected = p.id === selectedPlaceId;
+        const color = isDelivery ? "#2457c5" : isCandidate ? "#c57b13" : "#1c7c54";
+        if (isDelivery) {
+          parts.push(`<g data-place-id="${p.id}" class="place-marker" style="cursor:pointer">
+            <path d="M ${x} ${y - 13} L ${x + 13} ${y + 11} L ${x - 13} ${y + 11} Z" fill="${color}" stroke="${selected ? "#17202a" : "#fff"}" stroke-width="${selected ? 4 : 2}"></path>
+            <title>${escapeHtml(p.name)} - ${escapeHtml(p.source_status)}</title>
+          </g>`);
+        } else {
+          parts.push(`<g data-place-id="${p.id}" class="place-marker" style="cursor:pointer">
+            <circle cx="${x}" cy="${y}" r="${selected ? 10 : 7}" fill="${color}" stroke="${selected ? "#17202a" : "#fff"}" stroke-width="${selected ? 4 : 2}"></circle>
+            <title>${escapeHtml(p.name)} - ${escapeHtml(p.source_status)}</title>
+          </g>`);
+        }
+      });
+
+      parts.push(`<text x="32" y="612" fill="#687381" font-size="13">${escapeHtml(wilaya)} source-of-truth layer</text>`);
+      els.map.innerHTML = parts.join("");
+      els.mapTitle.textContent = wilaya;
+      els.mapSubtitle.textContent = `${filtered.length} visible places, ${clusters.length} store clusters`;
+      els.map.querySelectorAll(".place-marker").forEach((marker) => {
+        marker.addEventListener("click", () => selectPlace(marker.dataset.placeId));
+      });
+    }
+
+    function renderDistanceTable() {
+      if (!clusterDistances.length) {
+        els.distanceTable.innerHTML = `<tr><td colspan="7"><div class="empty-state">No qualifying store clusters for the current settings.</div></td></tr>`;
+        return;
+      }
+
+      els.distanceTable.innerHTML = clusterDistances.map((row, index) => {
+        const nearest = row.nearest;
+        const coverage = coverageStatus(nearest?.driving_distance_m);
+        return `<tr>
+          <td>Cluster ${index + 1}</td>
+          <td>${row.cluster.store_count}</td>
+          <td>${formatDistance(row.cluster.radius_m)}</td>
+          <td>${nearest ? escapeHtml(nearest.place.name) : "n/a"}</td>
+          <td>${nearest ? formatDistance(nearest.driving_distance_m) : "n/a"}</td>
+          <td>${nearest ? formatDuration(nearest.driving_duration_s) : "n/a"}</td>
+          <td><span class="status-pill ${coverage.className}">${coverage.label}</span></td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderQueue() {
+      const queue = state.places
+        .filter((p) => p.wilaya === els.wilayaSelect.value && ["candidate", "rejected"].includes(p.source_status))
+        .sort((a, b) => (b.verification_score || 0) - (a.verification_score || 0));
+
+      if (!queue.length) {
+        els.queueTable.innerHTML = `<tr><td colspan="4"><div class="empty-state">No candidates in this wilaya.</div></td></tr>`;
+        return;
+      }
+
+      els.queueTable.innerHTML = queue.map((p) => `
+        <tr>
+          <td>${escapeHtml(p.name)}</td>
+          <td><span class="status-pill ${p.source_status}">${escapeHtml(p.source_status)}</span></td>
+          <td>${p.verification_score || 0}</td>
+          <td><button data-queue-id="${p.id}">Review</button></td>
+        </tr>
+      `).join("");
+
+      els.queueTable.querySelectorAll("button[data-queue-id]").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectPlace(button.dataset.queueId);
+          activateTab("editor");
+        });
+      });
+    }
+
+    function renderPlacesTable(filtered) {
+      els.placeCountBadge.textContent = filtered.length;
+      if (!filtered.length) {
+        els.placesTable.innerHTML = `<tr><td colspan="3"><div class="empty-state">No places match the filters.</div></td></tr>`;
+        return;
+      }
+
+      els.placesTable.innerHTML = filtered
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((p) => `
+          <tr data-row-id="${p.id}" data-selected="${p.id === selectedPlaceId}">
+            <td>${escapeHtml(p.name)}</td>
+            <td>${p.category === "delivery_company" ? "Delivery" : "Store"}</td>
+            <td><span class="status-pill ${p.source_status}">${escapeHtml(p.source_status)}</span></td>
+          </tr>
+        `).join("");
+
+      els.placesTable.querySelectorAll("tr[data-row-id]").forEach((row) => {
+        row.addEventListener("click", () => selectPlace(row.dataset.rowId));
+      });
+    }
+
+    function renderPlaceSelect() {
+      const places = state.places
+        .filter((p) => p.wilaya === els.wilayaSelect.value)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      els.placeSelect.innerHTML = places.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+      if (!places.some((p) => p.id === selectedPlaceId)) {
+        selectedPlaceId = places[0]?.id || state.places[0]?.id || null;
+      }
+      if (selectedPlaceId) els.placeSelect.value = selectedPlaceId;
+    }
+
+    function renderEditor() {
+      const p = getSelectedPlace();
+      if (!p) return;
+      form.placeId.value = p.id;
+      form.name.value = p.name || "";
+      form.category.value = p.category || "clothing_store";
+      form.subtype.value = p.subtype || "";
+      form.phone.value = p.phone || "";
+      form.website.value = p.website || "";
+      form.address.value = p.address_text || "";
+      form.lat.value = p.lat || "";
+      form.lng.value = p.lng || "";
+      form.wilaya.value = p.wilaya || "";
+      form.commune.value = p.commune || "";
+      form.status.value = p.source_status || "candidate";
+      form.score.value = p.verification_score || 0;
+      form.googlePlaceId.value = p.google_place_id || "";
+      form.googleMapsUrl.value = p.google_maps_url || "";
+    }
+
+    function renderChecks() {
+      const p = getSelectedPlace();
+      if (!p) {
+        els.selectedDetails.innerHTML = `<span>Select a record.</span>`;
+        els.sourceLine.innerHTML = "";
+        els.checksList.innerHTML = "";
+        return;
+      }
+
+      els.selectedDetails.innerHTML = `
+        <strong>${escapeHtml(p.name)}</strong>
+        <span>${escapeHtml(p.category)} / ${escapeHtml(p.subtype || "general")} / ${escapeHtml(p.commune || p.wilaya)}<br>
+        Score ${p.verification_score || 0}, last verified ${escapeHtml(p.last_verified_at || "not yet")}</span>
+      `;
+
+      const sources = state.sources.filter((s) => s.place_id === p.id);
+      els.sourceLine.innerHTML = sources.length
+        ? sources.map((s) => `<span class="status-pill">${escapeHtml(s.source_type)} ${(s.source_confidence * 100).toFixed(0)}%</span>`).join("")
+        : `<span class="status-pill">no sources</span>`;
+
+      const checks = state.checks.filter((c) => c.place_id === p.id).sort((a, b) => b.checked_at.localeCompare(a.checked_at));
+      els.checksList.innerHTML = checks.length
+        ? checks.map((c) => `
+          <div class="detail-box" style="margin-bottom:8px;">
+            <strong>${escapeHtml(c.check_type)}: ${escapeHtml(c.result)}</strong>
+            <span>${escapeHtml(c.details || "")}<br>${new Date(c.checked_at).toLocaleString()}</span>
+          </div>
+        `).join("")
+        : `<div class="empty-state">No verification checks yet.</div>`;
+    }
+
+    function selectPlace(id) {
+      selectedPlaceId = id;
+      renderAll();
+    }
+
+    function getSelectedPlace() {
+      return state.places.find((p) => p.id === selectedPlaceId) || null;
+    }
+
+    function savePlace(event) {
+      event.preventDefault();
+      const id = form.placeId.value || uid("plc");
+      let p = state.places.find((item) => item.id === id);
+      const isNew = !p;
+      if (!p) {
+        p = { id, created_at: new Date().toISOString() };
+        state.places.push(p);
+      }
+
+      Object.assign(p, {
+        name: form.name.value.trim(),
+        category: form.category.value,
+        subtype: form.subtype.value.trim(),
+        phone: form.phone.value.trim(),
+        website: form.website.value.trim(),
+        address_text: form.address.value.trim(),
+        lat: Number(form.lat.value),
+        lng: Number(form.lng.value),
+        wilaya: form.wilaya.value.trim(),
+        commune: form.commune.value.trim(),
+        source_status: form.status.value,
+        verification_score: clamp(Number(form.score.value || 0), 0, 100),
+        google_place_id: form.googlePlaceId.value.trim(),
+        google_maps_url: form.googleMapsUrl.value.trim(),
+        last_verified_at: form.status.value === "verified" ? today : p.last_verified_at || "",
+        updated_at: new Date().toISOString()
+      });
+
+      if (isNew) {
+        state.sources.push({
+          id: uid("src"),
+          place_id: id,
+          source_type: "manual",
+          source_url: "",
+          source_confidence: 1,
+          raw_reference_id: "",
+          checked_at: new Date().toISOString()
+        });
+      }
+
+      selectedPlaceId = id;
+      populateStaticFilters();
+      recalculate();
+      activateTab("checks");
+    }
+
+    function createBlankPlace(category) {
+      const wilaya = els.wilayaSelect.value || "Oran";
+      const bounds = wilayaBounds[wilaya];
+      const id = uid("plc");
+      const p = {
+        id,
+        name: category === "delivery_company" ? "New delivery company" : "New clothing store",
+        category,
+        subtype: category === "delivery_company" ? "courier" : "general",
+        phone: "",
+        website: "",
+        address_text: "",
+        lat: bounds ? bounds.center[0] : 35.697,
+        lng: bounds ? bounds.center[1] : -0.631,
+        wilaya,
+        commune: "",
+        source_status: "manually_added",
+        verification_score: 70,
+        last_verified_at: today,
+        google_place_id: "",
+        google_maps_url: "",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      state.places.push(p);
+      state.sources.push({
+        id: uid("src"),
+        place_id: id,
+        source_type: "manual",
+        source_url: "",
+        source_confidence: 1,
+        raw_reference_id: "",
+        checked_at: new Date().toISOString()
+      });
+      selectedPlaceId = id;
+      saveState();
+      populateStaticFilters();
+      recalculate();
+      activateTab("editor");
+    }
+
+    function setSelectedStatus(status) {
+      const p = getSelectedPlace();
+      if (!p) return;
+      p.source_status = status;
+      p.last_verified_at = status === "verified" ? today : p.last_verified_at;
+      p.verification_score = status === "verified" ? Math.max(p.verification_score || 0, 75) : p.verification_score;
+      p.updated_at = new Date().toISOString();
+      state.checks.push({
+        id: uid("chk"),
+        place_id: p.id,
+        check_type: "manual_visit",
+        result: status === "rejected" ? "fail" : "pass",
+        details: `Admin changed status to ${status}.`,
+        checked_at: new Date().toISOString()
+      });
+      saveState();
+      recalculate();
+    }
+
+    function deleteSelectedPlace() {
+      const p = getSelectedPlace();
+      if (!p || !confirm(`Remove ${p.name}?`)) return;
+      state.places = state.places.filter((item) => item.id !== p.id);
+      state.sources = state.sources.filter((item) => item.place_id !== p.id);
+      state.checks = state.checks.filter((item) => item.place_id !== p.id);
+      selectedPlaceId = state.places[0]?.id || null;
+      saveState();
+      populateStaticFilters();
+      recalculate();
+    }
+
+    function addCheck(event) {
+      event.preventDefault();
+      const p = getSelectedPlace();
+      if (!p) return;
+      state.checks.push({
+        id: uid("chk"),
+        place_id: p.id,
+        check_type: document.getElementById("checkTypeInput").value,
+        result: document.getElementById("checkResultInput").value,
+        details: document.getElementById("checkDetailsInput").value.trim(),
+        checked_at: new Date().toISOString()
+      });
+      p.verification_score = computeVerificationScore(p);
+      if (p.verification_score >= 75 && p.source_status === "candidate") {
+        p.source_status = "verified";
+        p.last_verified_at = today;
+      }
+      p.updated_at = new Date().toISOString();
+      document.getElementById("checkDetailsInput").value = "";
+      saveState();
+      recalculate();
+    }
+
+    function computeVerificationScore(placeRecord) {
+      const checks = state.checks.filter((c) => c.place_id === placeRecord.id);
+      let score = 20;
+      if (placeRecord.google_place_id) score += 12;
+      if (placeRecord.phone) score += 12;
+      if (placeRecord.website) score += 8;
+      checks.forEach((check) => {
+        const delta = {
+          google_business_status: 16,
+          osm_match: 14,
+          website_active: 10,
+          social_recent: 8,
+          phone_reachable: 16,
+          manual_visit: 22,
+          duplicate_review: 10
+        }[check.check_type] || 8;
+
+        if (check.result === "pass") score += delta;
+        if (check.result === "uncertain") score += Math.round(delta * 0.25);
+        if (check.result === "fail") score -= Math.round(delta * 0.75);
+      });
+      if (placeRecord.source_status === "rejected") score = Math.min(score, 30);
+      return clamp(score, 0, 100);
+    }
+
+    function flagDuplicates() {
+      const places = state.places.filter((p) => p.wilaya === els.wilayaSelect.value && p.source_status !== "rejected");
+      let count = 0;
+      for (let i = 0; i < places.length; i++) {
+        for (let j = i + 1; j < places.length; j++) {
+          const a = places[i];
+          const b = places[j];
+          if (a.category !== b.category) continue;
+          const sameGoogleId = a.google_place_id && a.google_place_id === b.google_place_id;
+          const near = haversineMeters(a.lat, a.lng, b.lat, b.lng) < 70;
+          const similar = similarity(a.name, b.name) > 0.72;
+          if (sameGoogleId || (near && similar)) {
+            count++;
+            state.checks.push({
+              id: uid("chk"),
+              place_id: b.id,
+              check_type: "duplicate_review",
+              result: "uncertain",
+              details: `Possible duplicate of ${a.name}. Distance ${formatDistance(haversineMeters(a.lat, a.lng, b.lat, b.lng))}.`,
+              checked_at: new Date().toISOString()
+            });
+            b.verification_score = Math.max(0, (b.verification_score || 0) - 10);
+            b.updated_at = new Date().toISOString();
+          }
+        }
+      }
+      saveState();
+      recalculate();
+      alert(count ? `${count} possible duplicate relationship(s) flagged.` : "No likely duplicates found in this wilaya.");
+    }
+
+    function runDbscan(points, epsMeters, minSamples) {
+      const visited = new Set();
+      const clustered = new Set();
+      const result = [];
+
+      points.forEach((point) => {
+        if (visited.has(point.id)) return;
+        visited.add(point.id);
+        const neighbors = regionQuery(points, point, epsMeters);
+        if (neighbors.length < minSamples) return;
+
+        const clusterPoints = [];
+        result.push(clusterPoints);
+        expandCluster(points, point, neighbors, clusterPoints, visited, clustered, epsMeters, minSamples);
+      });
+
+      return result.map((clusterPoints, index) => clusterSummary(clusterPoints, index));
+    }
+
+    function expandCluster(points, point, neighbors, clusterPoints, visited, clustered, epsMeters, minSamples) {
+      clusterPoints.push(point);
+      clustered.add(point.id);
+      const queue = [...neighbors];
+
+      while (queue.length) {
+        const current = queue.shift();
+        if (!visited.has(current.id)) {
+          visited.add(current.id);
+          const currentNeighbors = regionQuery(points, current, epsMeters);
+          if (currentNeighbors.length >= minSamples) {
+            currentNeighbors.forEach((n) => {
+              if (!queue.some((q) => q.id === n.id)) queue.push(n);
+            });
+          }
+        }
+
+        if (!clustered.has(current.id)) {
+          clusterPoints.push(current);
+          clustered.add(current.id);
+        }
+      }
+    }
+
+    function regionQuery(points, point, epsMeters) {
+      return points.filter((candidate) => haversineMeters(point.lat, point.lng, candidate.lat, candidate.lng) <= epsMeters);
+    }
+
+    function clusterSummary(points, index) {
+      const centroidLat = average(points.map((p) => p.lat));
+      const centroidLng = average(points.map((p) => p.lng));
+      const distances = points.map((p) => haversineMeters(centroidLat, centroidLng, p.lat, p.lng));
+      const radius = Math.max(...distances, 0);
+      const areaKm2 = Math.PI * Math.pow(Math.max(radius, 1) / 1000, 2);
+      return {
+        id: `cluster-${index + 1}`,
+        wilaya: els.wilayaSelect.value,
+        algorithm: `dbscan_eps_${els.epsSelect.value}_min_${els.minSamplesSelect.value}`,
+        centroid_lat: centroidLat,
+        centroid_lng: centroidLng,
+        store_count: points.length,
+        radius_m: Math.round(radius),
+        density_score: Math.round((points.length / Math.max(areaKm2, 0.01)) * 10) / 10,
+        stores: points
+      };
+    }
+
+    function calculateClusterDistances(clusterList, deliveryPlaces) {
+      return clusterList.map((cluster) => {
+        const distances = deliveryPlaces.map((delivery) => {
+          const straight = haversineMeters(cluster.centroid_lat, cluster.centroid_lng, delivery.lat, delivery.lng);
+          const driving = straight * 1.28;
+          return {
+            place: delivery,
+            straight_line_distance_m: Math.round(straight),
+            driving_distance_m: Math.round(driving),
+            driving_duration_s: Math.round((driving / 1000) / 26 * 3600),
+            calculated_at: new Date().toISOString()
+          };
+        }).sort((a, b) => a.driving_distance_m - b.driving_distance_m);
+
+        return {
+          cluster,
+          nearest: distances[0] || null,
+          top3: distances.slice(0, 3),
+          average_top3_distance_m: Math.round(average(distances.slice(0, 3).map((d) => d.driving_distance_m)) || 0),
+          coverage_gap_score: distances[0] ? Math.min(100, Math.round(distances[0].driving_distance_m / 100)) : 100
+        };
+      });
+    }
+
+    function nearestDeliveryDistanceByPlace() {
+      const delivery = state.places.filter((p) => p.wilaya === els.wilayaSelect.value && p.category === "delivery_company" && p.source_status !== "rejected");
+      const map = new Map();
+      state.places
+        .filter((p) => p.wilaya === els.wilayaSelect.value && p.category === "clothing_store")
+        .forEach((store) => {
+          const nearest = Math.min(...delivery.map((d) => haversineMeters(store.lat, store.lng, d.lat, d.lng) * 1.28));
+          map.set(store.id, nearest);
+        });
+      return map;
+    }
+
+    function copyDistanceSummary() {
+      const lines = clusterDistances.map((row, index) => {
+        const nearest = row.nearest;
+        return [
+          `Cluster ${index + 1}`,
+          `${row.cluster.store_count} stores`,
+          `radius ${formatDistance(row.cluster.radius_m)}`,
+          nearest ? `nearest ${nearest.place.name} at ${formatDistance(nearest.driving_distance_m)} / ${formatDuration(nearest.driving_duration_s)}` : "no delivery company"
+        ].join(", ");
+      });
+      navigator.clipboard?.writeText(lines.join("\n"));
+      alert("Distance summary copied.");
+    }
+
+    function exportCsv() {
+      const rows = getFilteredPlaces();
+      const headers = ["id", "name", "category", "subtype", "phone", "website", "address_text", "lat", "lng", "wilaya", "commune", "source_status", "verification_score", "last_verified_at", "google_place_id", "google_maps_url", "created_at", "updated_at"];
+      const csv = [headers.join(",")]
+        .concat(rows.map((row) => headers.map((h) => csvCell(row[h] ?? "")).join(",")))
+        .join("\n");
+      downloadFile(`places-${els.wilayaSelect.value.toLowerCase()}-${today}.csv`, csv, "text/csv");
+    }
+
+    function exportGeoJson() {
+      const features = getFilteredPlaces().map((p) => ({
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+        properties: { ...p, lat: undefined, lng: undefined }
+      }));
+      downloadFile(`places-${els.wilayaSelect.value.toLowerCase()}-${today}.geojson`, JSON.stringify({ type: "FeatureCollection", features }, null, 2), "application/geo+json");
+    }
+
+    function importCsv(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const records = parseCsv(String(reader.result || ""));
+        let added = 0;
+        records.forEach((record) => {
+          if (!record.name || !record.lat || !record.lng) return;
+          const id = record.id || uid("plc");
+          if (state.places.some((p) => p.id === id)) return;
+          state.places.push({
+            id,
+            name: record.name,
+            category: record.category || "clothing_store",
+            subtype: record.subtype || "",
+            phone: record.phone || "",
+            website: record.website || "",
+            address_text: record.address_text || "",
+            lat: Number(record.lat),
+            lng: Number(record.lng),
+            wilaya: record.wilaya || els.wilayaSelect.value,
+            commune: record.commune || "",
+            source_status: record.source_status || "candidate",
+            verification_score: Number(record.verification_score || 35),
+            last_verified_at: record.last_verified_at || "",
+            google_place_id: record.google_place_id || "",
+            google_maps_url: record.google_maps_url || "",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+          state.sources.push({
+            id: uid("src"),
+            place_id: id,
+            source_type: record.google_place_id ? "google_places" : "manual",
+            source_url: record.google_maps_url || "",
+            source_confidence: 0.5,
+            raw_reference_id: record.google_place_id || "",
+            checked_at: new Date().toISOString()
+          });
+          added++;
+        });
+        saveState();
+        populateStaticFilters();
+        recalculate();
+        alert(`${added} records imported.`);
+        els.csvInput.value = "";
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCsv(text) {
+      const lines = text.split(/\r?\n/).filter((line) => line.trim());
+      if (lines.length < 2) return [];
+      const headers = splitCsvLine(lines[0]).map((h) => h.trim());
+      return lines.slice(1).map((line) => {
+        const cells = splitCsvLine(line);
+        const row = {};
+        headers.forEach((header, index) => row[header] = cells[index] || "");
+        return row;
+      });
+    }
+
+    function splitCsvLine(line) {
+      const cells = [];
+      let current = "";
+      let quoted = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"' && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else if (ch === '"') {
+          quoted = !quoted;
+        } else if (ch === "," && !quoted) {
+          cells.push(current);
+          current = "";
+        } else {
+          current += ch;
+        }
+      }
+      cells.push(current);
+      return cells;
+    }
+
+    function makeProjector(bounds) {
+      const padding = 58;
+      const width = 1000 - padding * 2;
+      const height = 650 - padding * 2;
+      return (lat, lng) => {
+        const x = padding + ((lng - bounds.minLng) / Math.max(bounds.maxLng - bounds.minLng, 0.0001)) * width;
+        const y = padding + ((bounds.maxLat - lat) / Math.max(bounds.maxLat - bounds.minLat, 0.0001)) * height;
+        return [Math.round(x), Math.round(y)];
+      };
+    }
+
+    function boundsFromPlaces(places) {
+      if (!places.length) return wilayaBounds.Oran;
+      const lats = places.map((p) => p.lat);
+      const lngs = places.map((p) => p.lng);
+      const padLat = Math.max((Math.max(...lats) - Math.min(...lats)) * .25, .03);
+      const padLng = Math.max((Math.max(...lngs) - Math.min(...lngs)) * .25, .03);
+      return {
+        minLat: Math.min(...lats) - padLat,
+        maxLat: Math.max(...lats) + padLat,
+        minLng: Math.min(...lngs) - padLng,
+        maxLng: Math.max(...lngs) + padLng
+      };
+    }
+
+    function boundaryPath(bounds, project) {
+      const points = [
+        [bounds.maxLat, bounds.minLng],
+        [bounds.maxLat - (bounds.maxLat - bounds.minLat) * .08, bounds.maxLng],
+        [bounds.minLat + (bounds.maxLat - bounds.minLat) * .12, bounds.maxLng - (bounds.maxLng - bounds.minLng) * .04],
+        [bounds.minLat, bounds.minLng + (bounds.maxLng - bounds.minLng) * .12]
+      ].map(([lat, lng]) => project(lat, lng));
+      return `M ${points[0][0]} ${points[0][1]} L ${points[1][0]} ${points[1][1]} L ${points[2][0]} ${points[2][1]} L ${points[3][0]} ${points[3][1]} Z`;
+    }
+
+    function gridLines() {
+      const lines = [];
+      for (let x = 140; x < 920; x += 120) {
+        lines.push(`<line x1="${x}" y1="54" x2="${x}" y2="596" stroke="#c8d2dc" stroke-width="1"></line>`);
+      }
+      for (let y = 110; y < 580; y += 90) {
+        lines.push(`<line x1="54" y1="${y}" x2="946" y2="${y}" stroke="#c8d2dc" stroke-width="1"></line>`);
+      }
+      return lines.join("");
+    }
+
+    function haversineMeters(lat1, lng1, lat2, lng2) {
+      const radius = 6371000;
+      const toRad = (n) => n * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+      return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function coverageStatus(distance) {
+      if (!Number.isFinite(distance)) return { label: "missing", className: "rejected" };
+      if (distance <= 2500) return { label: "good", className: "verified" };
+      if (distance <= 5000) return { label: "watch", className: "candidate" };
+      return { label: "gap", className: "rejected" };
+    }
+
+    function average(values) {
+      const clean = values.filter(Number.isFinite);
+      if (!clean.length) return 0;
+      return clean.reduce((sum, value) => sum + value, 0) / clean.length;
+    }
+
+    function formatDistance(meters) {
+      if (!Number.isFinite(meters)) return "n/a";
+      return meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`;
+    }
+
+    function formatDuration(seconds) {
+      if (!Number.isFinite(seconds)) return "n/a";
+      const minutes = Math.max(1, Math.round(seconds / 60));
+      return `${minutes} min`;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function csvCell(value) {
+      const text = String(value ?? "");
+      return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+    }
+
+    function downloadFile(name, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function uid(prefix) {
+      return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function activateTab(name) {
+      document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === name));
+      document.querySelectorAll(".tab-pane").forEach((pane) => pane.classList.toggle("active", pane.id === name));
+    }
+
+    function similarity(a, b) {
+      const left = normalizeName(a);
+      const right = normalizeName(b);
+      if (!left || !right) return 0;
+      const leftTokens = new Set(left.split(" "));
+      const rightTokens = new Set(right.split(" "));
+      const shared = [...leftTokens].filter((token) => rightTokens.has(token)).length;
+      return shared / Math.max(leftTokens.size, rightTokens.size);
+    }
+
+    function normalizeName(value) {
+      return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9 ]/g, " ")
+        .replace(/\b(boutique|store|mode|fashion|style|sarl|eurl)\b/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+  </script>
+</body>
+</html>

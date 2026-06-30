@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wilaya Retail Delivery Coverage</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Wilaya Retail Delivery Coverage</h1>
+      <p>Editable PostGIS-backed source of truth for stores, delivery companies, verification, clustering, and coverage.</p>
+    </div>
+    <div class="top-actions">
+      <button id="refreshBtn" title="Refresh data">Refresh</button>
+      <button id="exportCsvBtn" title="Export CSV">CSV</button>
+      <button id="exportGeoJsonBtn" title="Export GeoJSON">GeoJSON</button>
+    </div>
+  </header>
+
+  <section class="controls">
+    <label>Wilaya <input id="wilayaInput" value="Oran"></label>
+    <label>Category
+      <select id="categoryFilter">
+        <option value="">All</option>
+        <option value="clothing_store">Clothing stores</option>
+        <option value="delivery_company">Delivery companies</option>
+      </select>
+    </label>
+    <label>Status
+      <select id="statusFilter">
+        <option value="">All</option>
+        <option value="candidate">Candidate</option>
+        <option value="verified">Verified</option>
+        <option value="manually_added">Manual</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </label>
+    <label>Search <input id="searchInput" placeholder="Name"></label>
+    <button id="loadBtn" class="primary">Load</button>
+  </section>
+
+  <main class="layout">
+    <section class="left">
+      <div class="kpis" id="kpis"></div>
+
+      <section class="map-panel">
+        <div id="map" role="img" aria-label="Coverage map"></div>
+        <div id="mapNotice" class="map-notice"></div>
+        <div class="legend">
+          <span><i class="store"></i>Store</span>
+          <span><i class="candidate"></i>Candidate</span>
+          <span><i class="delivery"></i>Delivery</span>
+          <span><i class="cluster"></i>Cluster</span>
+          <span><i class="gap"></i>Coverage gap</span>
+        </div>
+      </section>
+
+      <section class="split">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Cluster Distances</h2>
+            <button id="distancesBtn">Recalculate</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Cluster</th><th>Stores</th><th>Delivery</th><th>Driving</th><th>Duration</th><th>Provider</th></tr>
+              </thead>
+              <tbody id="distancesTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Automation</h2>
+            <button id="nightlyBtn">Run Pipeline</button>
+          </div>
+          <div class="automation-grid">
+            <button id="googleIngestBtn">Google Candidates</button>
+            <button id="verifyBtn">Verify</button>
+            <button id="clustersBtn">Clusters</button>
+            <label class="file-btn">Import CSV<input id="csvFile" type="file" accept=".csv,text/csv"></label>
+            <label>Cluster eps
+              <select id="clusterEps">
+                <option value="750">750 m</option>
+                <option value="1000" selected>1000 m</option>
+                <option value="1500">1500 m</option>
+                <option value="2500">2500 m</option>
+              </select>
+            </label>
+            <label>Min stores
+              <select id="clusterMin">
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </label>
+          </div>
+          <p id="jobStatus" class="note">Scheduled worker runs nightly at 02:15 Africa/Algiers when the scheduler service is running.</p>
+          <div id="automationLog" class="automation-log"></div>
+        </article>
+      </section>
+    </section>
+
+    <aside class="right">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Editor</h2>
+          <button id="newStoreBtn">+ Store</button>
+          <button id="newDeliveryBtn">+ Delivery</button>
+        </div>
+        <form id="placeForm" class="form">
+          <input type="hidden" id="placeId">
+          <label class="wide">Name <input id="name" required></label>
+          <label>Category
+            <select id="category">
+              <option value="clothing_store">Clothing store</option>
+              <option value="delivery_company">Delivery company</option>
+            </select>
+          </label>
+          <label>Subtype <input id="subtype"></label>
+          <label>Phone <input id="phone"></label>
+          <label>Website <input id="website"></label>
+          <label class="wide">Address <textarea id="address"></textarea></label>
+          <label>Latitude <input id="lat" type="number" step="0.000001" required></label>
+          <label>Longitude <input id="lng" type="number" step="0.000001" required></label>
+          <label>Wilaya <input id="wilaya" required></label>
+          <label>Commune <input id="commune"></label>
+          <label>Status
+            <select id="sourceStatus">
+              <option value="candidate">Candidate</option>
+              <option value="verified">Verified</option>
+              <option value="manually_added">Manual</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </label>
+          <label>Score <input id="score" type="number" min="0" max="100" value="0"></label>
+          <label class="wide">Google Place ID <input id="googlePlaceId"></label>
+          <label class="wide">Google Maps URL <input id="googleMapsUrl"></label>
+          <div class="buttons wide">
+            <button class="primary" type="submit">Save</button>
+            <button id="approveBtn" type="button">Approve</button>
+            <button id="rejectBtn" type="button">Reject</button>
+            <button id="removeBtn" type="button" class="danger">Remove</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Verification Check</h2>
+        </div>
+        <form id="checkForm" class="form">
+          <label>Type
+            <select id="checkType">
+              <option value="google_business_status">Google status</option>
+              <option value="osm_match">OSM match</option>
+              <option value="website_active">Website active</option>
+              <option value="social_recent">Social recent</option>
+              <option value="phone_reachable">Phone reachable</option>
+              <option value="manual_visit">Manual visit</option>
+              <option value="duplicate_review">Duplicate review</option>
+            </select>
+          </label>
+          <label>Result
+            <select id="checkResult">
+              <option value="pass">Pass</option>
+              <option value="uncertain">Uncertain</option>
+              <option value="fail">Fail</option>
+            </select>
+          </label>
+          <label class="wide">Details <textarea id="checkDetails"></textarea></label>
+          <button class="primary wide" type="submit">Add Check</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Places</h2><span id="countBadge" class="badge">0</span></div>
+        <div class="table-wrap places-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Type</th><th>Status</th></tr></thead>
+            <tbody id="placesTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
