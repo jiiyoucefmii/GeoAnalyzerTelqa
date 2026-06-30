@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "build": "node frontend/build-config.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
