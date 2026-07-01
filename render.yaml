@@ -10,3 +10,5 @@ services:
         value: fr
       - key: DEFAULT_WILAYA
         value: Oran
+      - key: PYTHON_VERSION
+        value: 3.12.8
