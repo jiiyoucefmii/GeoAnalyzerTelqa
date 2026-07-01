@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Wilaya Retail Delivery Coverage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
   <script src="./config.js"></script>
 </head>
@@ -21,15 +24,15 @@
   </header>
 
   <section class="controls">
-    <label>Wilaya <input id="wilayaInput" value="Oran"></label>
-    <label>Category
+    <label for="wilayaInput">Wilaya <input id="wilayaInput" value="Oran"></label>
+    <label for="categoryFilter">Category
       <select id="categoryFilter">
         <option value="">All</option>
         <option value="clothing_store">Clothing stores</option>
         <option value="delivery_company">Delivery companies</option>
       </select>
     </label>
-    <label>Status
+    <label for="statusFilter">Status
       <select id="statusFilter">
         <option value="">All</option>
         <option value="candidate">Candidate</option>
@@ -38,7 +41,7 @@
         <option value="rejected">Rejected</option>
       </select>
     </label>
-    <label>Search <input id="searchInput" placeholder="Name"></label>
+    <label for="searchInput">Search <input id="searchInput" placeholder="Name"></label>
     <button id="loadBtn" class="primary">Load</button>
   </section>
 
@@ -83,8 +86,8 @@
             <button id="googleIngestBtn">Google Candidates</button>
             <button id="verifyBtn">Verify</button>
             <button id="clustersBtn">Clusters</button>
-            <label class="file-btn">Import CSV<input id="csvFile" type="file" accept=".csv,text/csv"></label>
-            <label>Cluster eps
+            <label for="csvFile" class="file-btn">Import CSV<input id="csvFile" type="file" accept=".csv,text/csv"></label>
+            <label for="clusterEps">Cluster eps
               <select id="clusterEps">
                 <option value="750">750 m</option>
                 <option value="1000" selected>1000 m</option>
@@ -92,7 +95,7 @@
                 <option value="2500">2500 m</option>
               </select>
             </label>
-            <label>Min stores
+            <label for="clusterMin">Min stores
               <select id="clusterMin">
                 <option value="2" selected>2</option>
                 <option value="3">3</option>
@@ -116,22 +119,22 @@
         </div>
         <form id="placeForm" class="form">
           <input type="hidden" id="placeId">
-          <label class="wide">Name <input id="name" required></label>
-          <label>Category
+          <label for="name" class="wide">Name <input id="name" required></label>
+          <label for="category">Category
             <select id="category">
               <option value="clothing_store">Clothing store</option>
               <option value="delivery_company">Delivery company</option>
             </select>
           </label>
-          <label>Subtype <input id="subtype"></label>
-          <label>Phone <input id="phone"></label>
-          <label>Website <input id="website"></label>
-          <label class="wide">Address <textarea id="address"></textarea></label>
-          <label>Latitude <input id="lat" type="number" step="0.000001" required></label>
-          <label>Longitude <input id="lng" type="number" step="0.000001" required></label>
-          <label>Wilaya <input id="wilaya" required></label>
-          <label>Commune <input id="commune"></label>
-          <label>Status
+          <label for="subtype">Subtype <input id="subtype"></label>
+          <label for="phone">Phone <input id="phone"></label>
+          <label for="website">Website <input id="website"></label>
+          <label for="address" class="wide">Address <textarea id="address"></textarea></label>
+          <label for="lat">Latitude <input id="lat" type="number" step="0.000001" required></label>
+          <label for="lng">Longitude <input id="lng" type="number" step="0.000001" required></label>
+          <label for="wilaya">Wilaya <input id="wilaya" required></label>
+          <label for="commune">Commune <input id="commune"></label>
+          <label for="sourceStatus">Status
             <select id="sourceStatus">
               <option value="candidate">Candidate</option>
               <option value="verified">Verified</option>
@@ -139,9 +142,9 @@
               <option value="rejected">Rejected</option>
             </select>
           </label>
-          <label>Score <input id="score" type="number" min="0" max="100" value="0"></label>
-          <label class="wide">Google Place ID <input id="googlePlaceId"></label>
-          <label class="wide">Google Maps URL <input id="googleMapsUrl"></label>
+          <label for="score">Score <input id="score" type="number" min="0" max="100" value="0"></label>
+          <label for="googlePlaceId" class="wide">Google Place ID <input id="googlePlaceId"></label>
+          <label for="googleMapsUrl" class="wide">Google Maps URL <input id="googleMapsUrl"></label>
           <div class="buttons wide">
             <button class="primary" type="submit">Save</button>
             <button id="approveBtn" type="button">Approve</button>
@@ -156,7 +159,7 @@
           <h2>Verification Check</h2>
         </div>
         <form id="checkForm" class="form">
-          <label>Type
+          <label for="checkType">Type
             <select id="checkType">
               <option value="google_business_status">Google status</option>
               <option value="osm_match">OSM match</option>
@@ -167,14 +170,14 @@
               <option value="duplicate_review">Duplicate review</option>
             </select>
           </label>
-          <label>Result
+          <label for="checkResult">Result
             <select id="checkResult">
               <option value="pass">Pass</option>
               <option value="uncertain">Uncertain</option>
               <option value="fail">Fail</option>
             </select>
           </label>
-          <label class="wide">Details <textarea id="checkDetails"></textarea></label>
+          <label for="checkDetails" class="wide">Details <textarea id="checkDetails"></textarea></label>
           <button class="primary wide" type="submit">Add Check</button>
         </form>
       </section>
