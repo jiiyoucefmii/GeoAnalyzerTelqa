@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     google_places_language: str = Field(default="fr")
     default_wilaya: str = Field(default="Oran")
     api_cors_origins: str = Field(default="http://localhost:3000,http://localhost:8080")
+    auto_init_database: bool = Field(default=True)
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

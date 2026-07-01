@@ -2,6 +2,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import date, datetime
 from decimal import Decimal
+from pathlib import Path
 from uuid import UUID
 
 from psycopg.rows import dict_row
@@ -22,6 +23,32 @@ pool = ConnectionPool(
 def open_pool() -> None:
     if pool.closed:
         pool.open(wait=True)
+
+
+def initialize_database() -> None:
+    settings = get_settings()
+    if not settings.auto_init_database:
+        return
+    schema_dir = find_schema_dir()
+    if not schema_dir:
+        return
+    sql_files = [schema_dir / "001_schema.sql", schema_dir / "002_seed.sql"]
+    with get_conn() as conn:
+        for sql_file in sql_files:
+            if sql_file.exists():
+                conn.execute(sql_file.read_text(encoding="utf-8"))
+
+
+def find_schema_dir() -> Path | None:
+    current = Path(__file__).resolve()
+    candidates = [
+        current.parents[2] / "database" / "init",
+        current.parents[1] / "database" / "init",
+    ]
+    for candidate in candidates:
+        if (candidate / "001_schema.sql").exists():
+            return candidate
+    return None
 
 
 def close_pool() -> None:

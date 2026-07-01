@@ -5,7 +5,7 @@ from fastapi import FastAPI, File, HTTPException, Query, Response, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.db import close_pool, open_pool
+from app.db import close_pool, initialize_database, open_pool
 from app.schemas import (
     ApiMessage,
     ClusterRequest,
@@ -52,6 +52,7 @@ app.add_middleware(
 @app.on_event("startup")
 def startup() -> None:
     open_pool()
+    initialize_database()
 
 
 @app.on_event("shutdown")
